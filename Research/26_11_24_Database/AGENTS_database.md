@@ -12,7 +12,7 @@ Create three persisted entity types. Give every record a stable primary key and 
 
 - **User**: `first_name`, `last_name`, `phone_number`, `email_address`, `comment`
 - **Vehicle**: `make`, `model`, `year`, `number_seat_belts`, `comment`
-- **Trip**: `starting_address`, `ending_address`, `departure_time`, `estimated_arrival_time`, `comment`
+- **Trip**: `starting_address`, `ending_address`, `departure_date`, `arrival_date`, `departure_time`, `estimated_arrival_time`, `comment`
 
 The database must support multiple records of each entity type. Keep the three entities in separate tables/collections. Add created/updated timestamps if supported by the chosen database. Store comments as optional text. Do not silently discard submitted values.
 
@@ -20,7 +20,7 @@ If the implementation associates a trip with a user and vehicle, represent those
 
 ## Example Form
 
-Create one simple, accessible page with clearly labeled sections for **User**, **Vehicle**, and **Trip**. Include an input for every attribute listed above. Use suitable controls and browser-level hints, such as email and phone input types, a numeric year, a positive integer for seat belts, and time inputs for departure and estimated arrival. Comments may use multiline text areas.
+Create one simple, accessible page with clearly labeled sections for **User**, **Vehicle**, and **Trip**. Include an input for every attribute listed above. Use suitable controls and browser-level hints, such as email and phone input types, a numeric year, a positive integer for seat belts, date inputs for departure and arrival, and time inputs for departure and estimated arrival. Comments may use multiline text areas.
 
 The form must:
 
@@ -44,7 +44,7 @@ If the selected framework uses a different default port, configure it to use por
 
 ## Acceptance Criteria
 
-- The three entity types and all requested attributes, including each Trip's departure time and estimated arrival time, are represented in persistent storage.
+- The three entity types and all requested attributes, including each Trip's departure date, arrival date, departure time, and estimated arrival time, are represented in persistent storage.
 - More than one user, vehicle, and trip can be stored without overwriting prior records.
 - A visitor can complete the example form and save all three records.
 - Invalid values and database errors are handled with clear feedback and do not leave partial records.

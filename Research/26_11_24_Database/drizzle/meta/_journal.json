@@ -8,6 +8,13 @@
       "when": 1795569393033,
       "tag": "0000_curly_union_jack",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1795578625973,
+      "tag": "0001_outstanding_chronomancer",
+      "breakpoints": true
     }
   ]
 }

@@ -14,6 +14,14 @@ const commentField = z
 const timeField = (label: string) =>
   z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, `${label} must be a valid 24-hour time.`);
 
+const dateField = (label: string) =>
+  z.string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, `${label} must be a valid date.`)
+    .refine((value) => {
+      const date = new Date(`${value}T00:00:00.000Z`);
+      return !Number.isNaN(date.valueOf()) && date.toISOString().slice(0, 10) === value;
+    }, `${label} must be a valid calendar date.`);
+
 const recordSchema = z.object({
   user: z.object({
     firstName: requiredText("First name", 100),
@@ -32,6 +40,8 @@ const recordSchema = z.object({
   trip: z.object({
     startingAddress: requiredText("Starting address", 500),
     endingAddress: requiredText("Ending address", 500),
+    departureDate: dateField("Departure date"),
+    arrivalDate: dateField("Arrival date"),
     departureTime: timeField("Departure time"),
     estimatedArrivalTime: timeField("Estimated arrival time"),
     comment: commentField,
@@ -65,8 +75,8 @@ export async function POST(request: Request) {
         "INSERT INTO vehicles (make, model, year, number_seat_belts, comment) VALUES (?, ?, ?, ?, ?)",
       ).bind(vehicle.make, vehicle.model, vehicle.year, vehicle.numberSeatBelts, vehicle.comment),
       env.DB.prepare(
-        "INSERT INTO trips (starting_address, ending_address, departure_time, estimated_arrival_time, comment) VALUES (?, ?, ?, ?, ?)",
-      ).bind(trip.startingAddress, trip.endingAddress, trip.departureTime, trip.estimatedArrivalTime, trip.comment),
+        "INSERT INTO trips (starting_address, ending_address, departure_date, arrival_date, departure_time, estimated_arrival_time, comment) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      ).bind(trip.startingAddress, trip.endingAddress, trip.departureDate, trip.arrivalDate, trip.departureTime, trip.estimatedArrivalTime, trip.comment),
     ]);
     return Response.json({ message: "Your user, vehicle, and trip details were saved." }, { status: 201 });
   } catch {

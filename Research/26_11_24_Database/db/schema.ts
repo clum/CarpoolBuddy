@@ -32,6 +32,8 @@ export const trips = sqliteTable("trips", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   startingAddress: text("starting_address").notNull(),
   endingAddress: text("ending_address").notNull(),
+  departureDate: text("departure_date"),
+  arrivalDate: text("arrival_date"),
   departureTime: text("departure_time").notNull(),
   estimatedArrivalTime: text("estimated_arrival_time").notNull(),
   comment: text("comment"),

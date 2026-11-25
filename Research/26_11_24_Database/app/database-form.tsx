@@ -33,6 +33,8 @@ export function DatabaseForm() {
       trip: {
         startingAddress: values.get("startingAddress"),
         endingAddress: values.get("endingAddress"),
+        departureDate: values.get("departureDate"),
+        arrivalDate: values.get("arrivalDate"),
         departureTime: values.get("departureTime"),
         estimatedArrivalTime: values.get("estimatedArrivalTime"),
         comment: values.get("tripComment"),
@@ -152,6 +154,14 @@ export function DatabaseForm() {
           <label className="field field-full">
             <span>Ending address <span className="required">*</span></span>
             <input name="endingAddress" maxLength={500} required />
+          </label>
+          <label className="field">
+            <span>Departure date <span className="required">*</span></span>
+            <input name="departureDate" type="date" required />
+          </label>
+          <label className="field">
+            <span>Arrival date <span className="required">*</span></span>
+            <input name="arrivalDate" type="date" required />
           </label>
           <label className="field">
             <span>Departure time <span className="required">*</span></span>
