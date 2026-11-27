@@ -4,7 +4,7 @@ Use this guide when building the database-backed web form in this folder. It def
 
 ## Goal
 
-Build a small web application with a database that stores multiple records for users, vehicles, and trips. Provide a web form that collects one user's, one vehicle's, and one trip's information and saves the submitted records. Run the application locally so it can be tested in a browser.
+Build a small web application with a database that stores multiple records for users, vehicles, and trips. Provide a web form where a user selects one entity type and adds one record to the corresponding table per submission. Run the application locally so it can be tested in a browser.
 
 ## Data Model
 
@@ -20,7 +20,7 @@ If the implementation associates a trip with a user and vehicle, represent those
 
 ## Example Form
 
-Create one simple, accessible page with clearly labeled sections for **User**, **Vehicle**, and **Trip**. Include an input for every attribute listed above. Use suitable controls and browser-level hints, such as email and phone input types, a numeric year, a positive integer for seat belts, date inputs for departure and arrival, and time inputs for departure and estimated arrival. Comments may use multiline text areas.
+Create one simple, accessible page with a required dropdown offering **User**, **Vehicle**, and **Trip**. After one type is selected, show only that type's form fields. Include an input for every attribute of the selected type. Use suitable controls and browser-level hints, such as email and phone input types, a numeric year, a positive integer for seat belts, date inputs for departure and arrival, and time inputs for departure and estimated arrival. Comments may use multiline text areas.
 
 The form must:
 
@@ -30,7 +30,13 @@ The form must:
 - Avoid placing database credentials or privileged database operations in browser code.
 - Keep the layout usable on both phone and desktop screens.
 
-On submission, save the user, vehicle, and trip records as one logical operation where the database supports transactions. Prevent partial saves when one part of the submission fails.
+On submission, validate and insert one record of the selected type into only its corresponding table. Do not write to the other entity tables during that submission. A failed insert must not create a record.
+
+## Administrator Page
+
+Provide a read-only `/admin` page that displays all records and columns from the User, Vehicle, and Trip tables, newest first. Include record counts, useful empty states, and a generic database error state. Keep the layout usable on narrow screens with horizontally scrollable tables.
+
+Require ChatGPT sign-in and enforce an exact, case-insensitive administrator email allowlist on the server before querying any records. Read the allowed address from the `SITE_ADMIN_EMAIL` runtime environment value. For local preview, use the existing mock identity `seedy@sites.test` through an ignored `.dev.vars` file and provide a tracked `.dev.vars.example`. Deny access when the allowlist is missing or the signed-in email does not match. Do not return records to unauthorized visitors, expose database access in client code, or add edit/delete/export actions in this version.
 
 ## Local Development
 
@@ -46,7 +52,8 @@ If the selected framework uses a different default port, configure it to use por
 
 - The three entity types and all requested attributes, including each Trip's departure date, arrival date, departure time, and estimated arrival time, are represented in persistent storage.
 - More than one user, vehicle, and trip can be stored without overwriting prior records.
-- A visitor can complete the example form and save all three records.
-- Invalid values and database errors are handled with clear feedback and do not leave partial records.
+- A visitor can select User, Vehicle, or Trip, complete the matching form, and save one new record to only the corresponding table.
+- The `/admin` page shows all saved User, Vehicle, and Trip fields only to the configured administrator account; missing configuration and other accounts receive no records.
+- Invalid values and database errors are handled with clear feedback; failed submissions do not create records.
 - The application starts locally and the form loads at the documented localhost URL.
 - Setup, database initialization, and run instructions are documented in this folder.

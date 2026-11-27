@@ -8,7 +8,10 @@ export default function Home() {
           <span className="brand-mark" aria-hidden="true">C</span>
           <span>CarpoolBuddy</span>
         </a>
-        <span className="local-badge"><span aria-hidden="true" /> Local demo</span>
+        <nav className="header-actions" aria-label="Main navigation">
+          <a className="admin-link" href="/admin">Admin records</a>
+          <span className="local-badge"><span aria-hidden="true" /> Local demo</span>
+        </nav>
       </header>
 
       <div className="content-wrap">
@@ -16,15 +19,15 @@ export default function Home() {
           <p className="eyebrow">A simple ride details form</p>
           <h1 id="page-title">Plan a carpool</h1>
           <p className="intro-copy">
-            Add the contact, vehicle, and trip details below. This local demo
-            saves each section as its own database record.
+            Choose whether to add a User, Vehicle, or Trip. Each submission
+            saves one new record to the selected table.
           </p>
         </section>
 
         <DatabaseForm />
 
         <footer className="page-footer">
-          Your details are saved to the local development database.
+          Only the selected record type is saved with each submission.
         </footer>
       </div>
     </main>

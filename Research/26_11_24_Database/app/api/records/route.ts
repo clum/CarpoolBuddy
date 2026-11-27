@@ -22,22 +22,25 @@ const dateField = (label: string) =>
       return !Number.isNaN(date.valueOf()) && date.toISOString().slice(0, 10) === value;
     }, `${label} must be a valid calendar date.`);
 
-const recordSchema = z.object({
-  user: z.object({
+const recordSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("user"),
     firstName: requiredText("First name", 100),
     lastName: requiredText("Last name", 100),
     phoneNumber: requiredText("Phone number", 40),
     emailAddress: z.string().trim().toLowerCase().email("Enter a valid email address.").max(254),
     comment: commentField,
   }),
-  vehicle: z.object({
+  z.object({
+    type: z.literal("vehicle"),
     make: requiredText("Vehicle make", 100),
     model: requiredText("Vehicle model", 100),
     year: z.coerce.number().int().min(1886, "Enter a valid vehicle year.").max(new Date().getFullYear() + 1, "Vehicle year is too far in the future."),
     numberSeatBelts: z.coerce.number().int().min(1, "The vehicle must have at least one seat belt."),
     comment: commentField,
   }),
-  trip: z.object({
+  z.object({
+    type: z.literal("trip"),
     startingAddress: requiredText("Starting address", 500),
     endingAddress: requiredText("Ending address", 500),
     departureDate: dateField("Departure date"),
@@ -46,7 +49,7 @@ const recordSchema = z.object({
     estimatedArrivalTime: timeField("Estimated arrival time"),
     comment: commentField,
   }),
-});
+]);
 
 export async function POST(request: Request) {
   let payload: unknown;
@@ -65,21 +68,31 @@ export async function POST(request: Request) {
     return Response.json({ error: "The local database is not available. Run the database setup command and try again." }, { status: 503 });
   }
 
-  const { user, vehicle, trip } = parsed.data;
   try {
-    await env.DB.batch([
-      env.DB.prepare(
-        "INSERT INTO users (first_name, last_name, phone_number, email_address, comment) VALUES (?, ?, ?, ?, ?)",
-      ).bind(user.firstName, user.lastName, user.phoneNumber, user.emailAddress, user.comment),
-      env.DB.prepare(
-        "INSERT INTO vehicles (make, model, year, number_seat_belts, comment) VALUES (?, ?, ?, ?, ?)",
-      ).bind(vehicle.make, vehicle.model, vehicle.year, vehicle.numberSeatBelts, vehicle.comment),
-      env.DB.prepare(
-        "INSERT INTO trips (starting_address, ending_address, departure_date, arrival_date, departure_time, estimated_arrival_time, comment) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      ).bind(trip.startingAddress, trip.endingAddress, trip.departureDate, trip.arrivalDate, trip.departureTime, trip.estimatedArrivalTime, trip.comment),
-    ]);
-    return Response.json({ message: "Your user, vehicle, and trip details were saved." }, { status: 201 });
+    switch (parsed.data.type) {
+      case "user": {
+        const user = parsed.data;
+        await env.DB.prepare(
+          "INSERT INTO users (first_name, last_name, phone_number, email_address, comment) VALUES (?, ?, ?, ?, ?)",
+        ).bind(user.firstName, user.lastName, user.phoneNumber, user.emailAddress, user.comment).run();
+        return Response.json({ message: "User record saved." }, { status: 201 });
+      }
+      case "vehicle": {
+        const vehicle = parsed.data;
+        await env.DB.prepare(
+          "INSERT INTO vehicles (make, model, year, number_seat_belts, comment) VALUES (?, ?, ?, ?, ?)",
+        ).bind(vehicle.make, vehicle.model, vehicle.year, vehicle.numberSeatBelts, vehicle.comment).run();
+        return Response.json({ message: "Vehicle record saved." }, { status: 201 });
+      }
+      case "trip": {
+        const trip = parsed.data;
+        await env.DB.prepare(
+          "INSERT INTO trips (starting_address, ending_address, departure_date, arrival_date, departure_time, estimated_arrival_time, comment) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        ).bind(trip.startingAddress, trip.endingAddress, trip.departureDate, trip.arrivalDate, trip.departureTime, trip.estimatedArrivalTime, trip.comment).run();
+        return Response.json({ message: "Trip record saved." }, { status: 201 });
+      }
+    }
   } catch {
-    return Response.json({ error: "We could not save your details right now. Please try again." }, { status: 500 });
+    return Response.json({ error: "We could not save this record right now. Please try again." }, { status: 500 });
   }
 }
